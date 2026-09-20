@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Voice Receiver - Central Audio Hub</title>
+  <meta name="description" content="Central audio receiver hub for Wireless Classroom Voice Communication System. Plays student voices through classroom speakers.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-icon">🎙️</div>
+      <div class="brand-text">
+        <h1>Classroom Voice Receiver</h1>
+        <p>Central Laptop Audio Hub &bull; Wireless Classroom Sound</p>
+      </div>
+    </div>
+    <div class="header-status-group">
+      <div id="connectionStatus" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="connectionStatusText">Connecting...</span>
+      </div>
+      <div class="status-badge" style="background: rgba(59, 130, 246, 0.12); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.3);">
+        👥 <span id="studentCount">0</span> Students
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Grid -->
+  <main class="dashboard-grid">
+    
+    <!-- Left: Live Speaker Stage -->
+    <section class="glass-panel stage-card">
+      <div class="stage-header">
+        <span class="stage-title">Classroom Speaker Output</span>
+        <span id="audioModeBadge" class="status-badge" style="background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.3);">
+          ⚡ WebRTC Audio
+        </span>
+      </div>
+
+      <!-- Speaker Profile & Status -->
+      <div class="speaker-profile-container">
+        <div id="speakerAvatarRing" class="speaker-avatar-ring">
+          <span id="speakerAvatarEmoji">🎓</span>
+        </div>
+        <h2 id="speakerNameDisplay" class="speaker-name-display">No One Speaking</h2>
+        <div id="speakerStatusCaption" class="speaker-status-caption">
+          <span>Microphone channel idle</span>
+          <span id="speakingTimer" class="live-timer-badge hidden">00:00</span>
+        </div>
+      </div>
+
+      <!-- Audio Visualizer Canvas -->
+      <div class="visualizer-wrapper">
+        <canvas id="audioVisualizer"></canvas>
+      </div>
+
+      <!-- Master Audio Controls -->
+      <div class="audio-controls-row">
+        <button id="btnAudioUnlock" class="btn btn-primary" title="Enable browser speaker playback">
+          🔊 Click to Enable Sound
+        </button>
+
+        <div class="volume-slider-group">
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Volume:</span>
+          <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1.5" step="0.05" value="1.0">
+          <span id="volumeValueText" style="font-family: var(--font-mono); font-size: 0.85rem;">100%</span>
+        </div>
+
+        <button id="btnMuteAll" class="btn btn-danger">
+          🛑 Mute All
+        </button>
+
+        <button id="btnTestChime" class="btn btn-secondary" title="Play test tone through classroom speakers">
+          🔔 Test Tone
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: Connection QR & Classroom Roster -->
+    <aside class="sidebar-column">
+      
+      <!-- Connect Mobile Card -->
+      <div class="glass-panel connection-card">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">Connect Mobile Phone</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Scan with any mobile camera on the same Wi-Fi / Hotspot
+        </p>
+
+        <div class="qr-frame">
+          <img id="qrCodeImg" alt="Classroom Student QR Code" src="">
+        </div>
+
+        <div class="url-copy-box">
+          <span id="studentUrlText" class="url-text">Loading network URL...</span>
+          <button id="btnCopyUrl" class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.75rem;">
+            📋 Copy
+          </button>
+        </div>
+
+        <ol class="guide-steps">
+          <li class="guide-step-item">
+            <span class="step-num">1</span>
+            <span>Connect phone to the same <strong>Wi-Fi or Hotspot</strong>.</span>
+          </li>
+          <li class="guide-step-item">
+            <span class="step-num">2</span>
+            <span>Scan QR code or open link in phone browser.</span>
+          </li>
+          <li class="guide-step-item">
+            <span class="step-num">3</span>
+            <span>Tap <strong>"Advanced" &rarr; "Proceed"</strong> to accept the local SSL certificate.</span>
+          </li>
+          <li class="guide-step-item">
+            <span class="step-num">4</span>
+            <span>Allow microphone & tap <strong>"TAP TO SPEAK"</strong>.</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Active Student Roster -->
+      <div class="glass-panel roster-card">
+        <div class="roster-header">
+          <h4 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">
+            Connected Students
+          </h4>
+          <span id="rosterCountBadge" style="font-size: 0.8rem; color: var(--accent-cyan); font-family: var(--font-mono);">0 active</span>
+        </div>
+
+        <div id="studentListContainer" class="student-list">
+          <div style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+            Waiting for students to join...
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Hidden HTML5 Audio Element for WebRTC Stream -->
+  <audio id="remoteAudio" autoplay playsinline></audio>
+
+  <script src="/js/receiver.js"></script>
+</body>
+</html>

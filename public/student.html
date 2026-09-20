@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Student Microphone - Classroom Voice</title>
+  <meta name="description" content="Mobile microphone interface for students in the classroom voice communication system.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <div class="mobile-container">
+    
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">📱</div>
+        <div class="brand-text">
+          <h1 style="font-size: 1.05rem;">Student Mic</h1>
+          <p style="font-size: 0.72rem;">Classroom Voice System</p>
+        </div>
+      </div>
+      <div id="mobileConnectionBadge" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="mobileStatusText">Connecting...</span>
+      </div>
+    </header>
+
+    <!-- STEP 1: Join & Permission Screen -->
+    <section id="joinScreen" class="glass-panel mobile-card">
+      <div style="text-align: center; margin-bottom: 0.5rem;">
+        <span style="font-size: 3rem;">🎓</span>
+        <h2 style="font-size: 1.4rem; font-weight: 700; margin-top: 0.5rem;">Join the Classroom</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          Turn your phone into a wireless microphone for classroom discussions
+        </p>
+      </div>
+
+      <div>
+        <label class="input-label" for="studentNameInput">Your Name</label>
+        <input type="text" id="studentNameInput" class="input-field" placeholder="Enter your full name" maxlength="30" autocomplete="off" autocorrect="off">
+      </div>
+
+      <div style="background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-md); padding: 0.85rem; border: 1px solid var(--border-color);">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+          🔒 <strong>Microphone Notice:</strong> When prompted, please tap <strong>"Allow"</strong> so the classroom speaker can hear your answers. Audio is only transmitted when you tap the speak button.
+        </p>
+      </div>
+
+      <button id="btnJoinRoom" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; width: 100%;">
+        🎙️ Connect My Microphone
+      </button>
+
+      <div id="joinErrorMessage" class="hidden" style="color: var(--accent-rose); font-size: 0.8rem; text-align: center;"></div>
+    </section>
+
+    <!-- STEP 2: Main Push-to-Talk Screen -->
+    <section id="talkScreen" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
+      
+      <!-- Student Banner -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); padding: 0.6rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span id="userAvatarBadge">👤</span>
+          <span id="userNameBadge" style="font-weight: 600; font-size: 0.95rem;">Student</span>
+        </div>
+        <span id="streamTypeBadge" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan);">Ready</span>
+      </div>
+
+      <!-- Main PTT Central Stage -->
+      <div class="ptt-stage">
+        
+        <div class="ptt-button-outer">
+          <button id="btnPushToTalk" class="ptt-btn" aria-label="Tap to speak button">
+            <span class="ptt-icon">🎙️</span>
+            <span id="pttButtonLabel" class="ptt-btn-label">TAP TO SPEAK</span>
+          </button>
+          <div class="ptt-ripple-ring"></div>
+        </div>
+
+        <!-- Live Status Display -->
+        <div class="mobile-status-banner">
+          <div id="mainStatusText" class="status-main-text" style="color: var(--text-muted);">
+            MUTED
+          </div>
+          <div id="subStatusText" class="status-sub-text">
+            Tap the button to speak through classroom speaker
+          </div>
+          <div id="speakingTimerMobile" class="live-timer-badge hidden" style="margin: 0.5rem auto 0; display: inline-block;">
+            00:00
+          </div>
+        </div>
+
+        <!-- Voice Level VU Meter -->
+        <div class="mobile-vu-meter">
+          <div id="vuFill" class="vu-fill"></div>
+        </div>
+
+        <!-- Speak mode: Tap to Start / Tap to Stop -->
+        <div class="mode-toggle-group">
+          <span>🎤 Tap once to speak, tap again to mute</span>
+        </div>
+
+      </div>
+
+      <!-- Classroom Audio Tips -->
+      <footer style="margin-top: auto; padding: 1rem 0; text-align: center; border-top: 1px solid var(--border-color);">
+        <p style="font-size: 0.78rem; color: var(--text-muted);">
+          🛡️ Audio feedback protection active &bull; Keep phone ~15cm from mouth
+        </p>
+      </footer>
+
+    </section>
+
+  </div>
+
+  <script src="/js/student.js"></script>
+</body>
+</html>
