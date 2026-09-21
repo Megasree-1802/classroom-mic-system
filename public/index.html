@@ -15,8 +15,8 @@
     <div class="brand-wrapper">
       <div class="brand-icon">🎙️</div>
       <div class="brand-text">
-        <h1>Classroom Voice Receiver</h1>
-        <p>Central Laptop Audio Hub &bull; Wireless Classroom Sound</p>
+        <h1>CLASSROOM AUDIO CONTROL CENTER</h1>
+        <p>Session: Active &bull; Local Network Mode</p>
       </div>
     </div>
     <div class="header-status-group">
@@ -36,7 +36,7 @@
     <!-- Left: Live Speaker Stage -->
     <section class="glass-panel stage-card">
       <div class="stage-header">
-        <span class="stage-title">Classroom Speaker Output</span>
+        <span class="stage-title">LIVE AUDIO OUTPUT</span>
         <span id="audioModeBadge" class="status-badge" style="background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.3);">
           ⚡ WebRTC Audio
         </span>
@@ -45,11 +45,11 @@
       <!-- Speaker Profile & Status -->
       <div class="speaker-profile-container">
         <div id="speakerAvatarRing" class="speaker-avatar-ring">
-          <span id="speakerAvatarEmoji">🎓</span>
+          <span id="speakerAvatarEmoji">🎙️</span>
         </div>
-        <h2 id="speakerNameDisplay" class="speaker-name-display">No One Speaking</h2>
+        <h2 id="speakerNameDisplay" class="speaker-name-display">CLASSROOM AUDIO STANDBY</h2>
         <div id="speakerStatusCaption" class="speaker-status-caption">
-          <span>Microphone channel idle</span>
+          <span>Waiting for a student to speak</span>
           <span id="speakingTimer" class="live-timer-badge hidden">00:00</span>
         </div>
       </div>
@@ -78,6 +78,10 @@
         <button id="btnTestChime" class="btn btn-secondary" title="Play test tone through classroom speakers">
           🔔 Test Tone
         </button>
+
+        <button id="btnEndSession" class="btn btn-danger" style="margin-left: auto;" title="Disconnect all students and end the session">
+          🛑 End Session
+        </button>
       </div>
     </section>
 
@@ -86,9 +90,9 @@
       
       <!-- Connect Mobile Card -->
       <div class="glass-panel connection-card">
-        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">Connect Mobile Phone</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">JOIN THE CLASSROOM CHANNEL</h3>
         <p style="font-size: 0.85rem; color: var(--text-secondary);">
-          Scan with any mobile camera on the same Wi-Fi / Hotspot
+          Scan using a mobile connected to the same Wi-Fi or hotspot.
         </p>
 
         <div class="qr-frame">
@@ -120,6 +124,26 @@
             <span>Allow microphone & tap <strong>"TAP TO SPEAK"</strong>.</span>
           </li>
         </ol>
+      </div>
+
+      <!-- System Status Cards -->
+      <div class="status-cards-grid">
+        <div class="status-card-mini">
+          <span class="status-card-label">Students</span>
+          <span id="cardStudentCount" class="status-card-value">0 Connected</span>
+        </div>
+        <div class="status-card-mini">
+          <span class="status-card-label">Audio Status</span>
+          <span id="cardAudioStatus" class="status-card-value">Standby</span>
+        </div>
+        <div class="status-card-mini">
+          <span class="status-card-label">Network</span>
+          <span id="cardNetworkStatus" class="status-card-value">Offline</span>
+        </div>
+        <div class="status-card-mini">
+          <span class="status-card-label">Output Device</span>
+          <span id="cardOutputDevice" class="status-card-value">System Default</span>
+        </div>
       </div>
 
       <!-- Active Student Roster -->

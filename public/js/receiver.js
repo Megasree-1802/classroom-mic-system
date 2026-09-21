@@ -33,9 +33,16 @@ const volumeSlider = document.getElementById('volumeSlider');
 const volumeValueText = document.getElementById('volumeValueText');
 const btnMuteAll = document.getElementById('btnMuteAll');
 const btnTestChime = document.getElementById('btnTestChime');
+const btnEndSession = document.getElementById('btnEndSession');
 const canvas = document.getElementById('audioVisualizer');
 const canvasCtx = canvas.getContext('2d');
 const remoteAudio = document.getElementById('remoteAudio');
+
+// New Status Cards
+const cardStudentCount = document.getElementById('cardStudentCount');
+const cardAudioStatus = document.getElementById('cardAudioStatus');
+const cardNetworkStatus = document.getElementById('cardNetworkStatus');
+const cardOutputDevice = document.getElementById('cardOutputDevice');
 
 // ICE configuration (LAN host candidates prioritised)
 const rtcConfig = {
@@ -211,6 +218,10 @@ function setupSocket() {
     console.log('[Socket] Connected to server as receiver');
     connectionStatus.className = 'status-badge';
     connectionStatusText.textContent = 'Active & Ready';
+    if (cardNetworkStatus) {
+      cardNetworkStatus.textContent = 'Online';
+      cardNetworkStatus.className = 'status-card-value active';
+    }
     socket.emit('register-receiver');
   });
 
@@ -218,6 +229,10 @@ function setupSocket() {
     console.log('[Socket] Disconnected from server');
     connectionStatus.className = 'status-badge offline';
     connectionStatusText.textContent = 'Disconnected';
+    if (cardNetworkStatus) {
+      cardNetworkStatus.textContent = 'Offline';
+      cardNetworkStatus.className = 'status-card-value';
+    }
   });
 
   socket.on('receiver-registered', (data) => {
@@ -273,10 +288,15 @@ function setupSocket() {
 
 // 7. UI State Updates
 function setSpeakerActive(name, startTime) {
-  speakerNameDisplay.textContent = name;
+  speakerNameDisplay.textContent = 'LIVE SPEAKER';
   speakerAvatarRing.classList.add('active');
-  speakerStatusCaption.firstElementChild.textContent = 'Speaking on air';
+  speakerStatusCaption.firstElementChild.textContent = name;
   speakingTimer.classList.remove('hidden');
+  
+  if (cardAudioStatus) {
+    cardAudioStatus.textContent = 'Transmitting';
+    cardAudioStatus.className = 'status-card-value active';
+  }
 
   speakerStartTime = startTime || Date.now();
   if (speakerTimerInterval) clearInterval(speakerTimerInterval);
@@ -286,10 +306,15 @@ function setSpeakerActive(name, startTime) {
 }
 
 function setSpeakerIdle() {
-  speakerNameDisplay.textContent = 'No One Speaking';
+  speakerNameDisplay.textContent = 'CLASSROOM AUDIO STANDBY';
   speakerAvatarRing.classList.remove('active');
-  speakerStatusCaption.firstElementChild.textContent = 'Microphone channel idle';
+  speakerStatusCaption.firstElementChild.textContent = 'Waiting for a student to speak';
   speakingTimer.classList.add('hidden');
+  
+  if (cardAudioStatus) {
+    cardAudioStatus.textContent = 'Standby';
+    cardAudioStatus.className = 'status-card-value';
+  }
 
   if (speakerTimerInterval) {
     clearInterval(speakerTimerInterval);
@@ -309,6 +334,11 @@ function renderStudentList(students) {
   const count = students ? students.length : 0;
   studentCountElem.textContent = count;
   rosterCountBadge.textContent = `${count} active`;
+  
+  if (cardStudentCount) {
+    cardStudentCount.textContent = `${count} Connected`;
+    cardStudentCount.className = count > 0 ? 'status-card-value active' : 'status-card-value';
+  }
 
   if (!students || students.length === 0) {
     studentListContainer.innerHTML = `
@@ -383,11 +413,11 @@ function initVisualizer() {
         for (let i = 0; i < bufferLength; i++) {
           const barHeight = (dataArray[i] / 255) * height * 0.9;
 
-          // Gradient color: Cyan to Emerald to Blue
+          // Gradient color: Soft Mint Green based on requested palette
           const gradient = canvasCtx.createLinearGradient(0, height, 0, height - barHeight);
-          gradient.addColorStop(0, '#06b6d4');
-          gradient.addColorStop(0.5, '#10b981');
-          gradient.addColorStop(1, '#3b82f6');
+          gradient.addColorStop(0, '#527D64'); // Primary Button Green
+          gradient.addColorStop(0.5, '#6EAF83'); // Active Lime/Mint Green
+          gradient.addColorStop(1, '#527D64');
 
           canvasCtx.fillStyle = gradient;
           canvasCtx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
@@ -401,7 +431,7 @@ function initVisualizer() {
 
     // Ambient resting gentle sine wave when silent
     canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+    canvasCtx.strokeStyle = 'rgba(69, 107, 87, 0.25)'; // Dark Sage Green transparent
     canvasCtx.beginPath();
 
     const sliceWidth = width / 100;
@@ -452,6 +482,14 @@ btnMuteAll.addEventListener('click', () => {
 
 btnTestChime.addEventListener('click', () => {
   playTestChime();
+});
+
+btnEndSession.addEventListener('click', () => {
+  if (confirm('Are you sure you want to end the classroom session? This will disconnect all students.')) {
+    console.log('[Receiver] Ending session...');
+    socket.emit('end-session');
+    alert('Session has been ended. All students disconnected.');
+  }
 });
 
 btnCopyUrl.addEventListener('click', async () => {

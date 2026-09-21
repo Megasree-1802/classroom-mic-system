@@ -269,6 +269,19 @@ io.on('connection', (socket) => {
     }
   });
 
+  // --- End Classroom Session ---
+  socket.on('end-session', () => {
+    if (socket.id === receiverSocketId) {
+      console.log('[Receiver] Ended the session manually.');
+      // Notify all connected clients
+      io.emit('session-ended');
+      
+      // Clear active speaker immediately
+      activeSpeaker = null;
+      io.emit('floor-free');
+    }
+  });
+
   // --- Disconnect Handler ---
   socket.on('disconnect', () => {
     if (socket.id === receiverSocketId) {

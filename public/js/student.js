@@ -33,6 +33,7 @@ const mainStatusText = document.getElementById('mainStatusText');
 const subStatusText = document.getElementById('subStatusText');
 const speakingTimerMobile = document.getElementById('speakingTimerMobile');
 const vuFill = document.getElementById('vuFill');
+const btnLeaveSession = document.getElementById('btnLeaveSession');
 
 // ICE configuration
 const rtcConfig = {
@@ -241,6 +242,12 @@ function setupSocket() {
       console.error('[WebRTC] Signal handling error:', err);
     }
   });
+
+  // Handle server-initiated session end
+  socket.on('session-ended', () => {
+    alert('The classroom session has been ended by the teacher.');
+    leaveSession(false); // Force leave without confirmation
+  });
 }
 
 // 5. Floor & Speaking State Controls (Toggle Mode)
@@ -376,7 +383,48 @@ function showJoinError(msg) {
   joinErrorMessage.classList.remove('hidden');
 }
 
-// 7. Event Listeners
+// 7. Session Teardown
+function leaveSession(requireConfirmation = true) {
+  if (requireConfirmation && !confirm('Are you sure you want to leave the classroom session?')) {
+    return;
+  }
+
+  console.log('[App] Leaving session...');
+  
+  // Stop speaking if currently active
+  if (isHoldingFloor) {
+    releaseFloor();
+  }
+
+  // Stop hardware microphone tracks immediately
+  if (audioTrack) {
+    audioTrack.stop();
+  }
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop());
+  }
+
+  // Close WebRTC Connection
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+
+  // Disconnect WebSocket to notify server we've left
+  if (socket && socket.connected) {
+    socket.disconnect();
+  }
+
+  // Reset UI State
+  isRegistered = false;
+  talkScreen.classList.add('hidden');
+  joinScreen.classList.remove('hidden');
+  btnJoinRoom.disabled = false;
+  btnJoinRoom.textContent = '🎙️ Connect My Microphone';
+  studentNameInput.value = '';
+}
+
+// 8. Event Listeners
 btnJoinRoom.addEventListener('click', async () => {
   const name = studentNameInput.value.trim();
   if (!name) {
@@ -437,6 +485,22 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
     toggleSpeaking();
   }
+});
+
+// Leave Session Button
+if (btnLeaveSession) {
+  btnLeaveSession.addEventListener('click', () => {
+    leaveSession(true);
+  });
+}
+
+// Cleanup on tab close/refresh
+window.addEventListener('beforeunload', () => {
+  leaveSession(false);
+});
+
+window.addEventListener('pagehide', () => {
+  leaveSession(false);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
